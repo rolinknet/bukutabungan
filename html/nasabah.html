@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Nasabah</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>Selamat Datang!</h1>
+    <div class="data-box">
+      <p><strong>Nama:</strong> <span id="nama"></span></p>
+      <p><strong>Saldo:</strong> <span id="saldo"></span></p>
+      <p><strong>Pinjaman:</strong> <span id="pinjaman"></span></p>
+    </div>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+  <script>
+    const email = localStorage.getItem("userEmail");
+    fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?action=getNasabah")
+      .then(res => res.json())
+      .then(data => {
+        const user = data.find(d => d.email === email);
+        if (user) {
+          document.getElementById("nama").textContent = user.nama;
+          document.getElementById("saldo").textContent = "Rp " + user.saldo;
+          document.getElementById("pinjaman").textContent = "Rp " + user.pinjaman;
+        }
+      });
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

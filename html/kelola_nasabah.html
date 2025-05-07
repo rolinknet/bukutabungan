@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kelola Nasabah</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>Kelola Nasabah</h2>
+    <form id="nasabahForm">
+      <input type="text" id="nama" placeholder="Nama" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="number" id="saldo" placeholder="Saldo" required>
+      <input type="number" id="pinjaman" placeholder="Pinjaman" required>
+      <button type="submit">Simpan</button>
+    </form>
+    <table id="nasabahTable">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Email</th>
+          <th>Saldo</th>
+          <th>Pinjaman</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button onclick="window.location.href='admin.html'">Kembali</button>
+  </div>
+  <script>
+    const scriptUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+
+    function loadNasabah() {
+      fetch(`${scriptUrl}?action=getNasabah`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#nasabahTable tbody");
+          tbody.innerHTML = "";
+          data.forEach((row, index) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.nama}</td>
+              <td>${row.email}</td>
+              <td>${row.saldo}</td>
+              <td>${row.pinjaman}</td>
+              <td>
+                <button onclick="editNasabah(${index})">Edit</button>
+                <button onclick="hapusNasabah('${row.email}')">Hapus</button>
+              </td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    function editNasabah(index) {
+      fetch(`${scriptUrl}?action=getNasabah`)
+        .then(res => res.json())
+        .then(data => {
+          const n = data[index];
+          document.getElementById("nama").value = n.nama;
+          document.getElementById("email").value = n.email;
+          document.getElementById("saldo").value = n.saldo;
+          document.getElementById("pinjaman").value = n.pinjaman;
+        });
+    }
+
+    function hapusNasabah(email) {
+      fetch(scriptUrl, {
+        method: "POST",
+        body: JSON.stringify({ action: "deleteNasabah", email }),
+        headers: { "Content-Type": "application/json" }
+      }).then(() => loadNasabah());
+    }
+
+    document.getElementById("nasabahForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const data = {
+        action: "saveNasabah",
+        nama: document.getElementById("nama").value,
+        email: document.getElementById("email").value,
+        saldo: document.getElementById("saldo").value,
+        pinjaman: document.getElementById("pinjaman").value,
+      };
+
+      fetch(scriptUrl, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      }).then(() => {
+        document.getElementById("nasabahForm").reset();
+        loadNasabah();
+      });
+    });
+
+    loadNasabah();
+  </script>
+</body>
+</html>
